@@ -53,7 +53,8 @@ public class Main
                     name = modelName,
                     thumbnail = GetSasUrl(containerClient, $"{modelName}/{modelName}.jpg"),
                     description = GetSasUrl(containerClient, $"{modelName}/{modelName}.md"),
-                    model = GetSasUrl(containerClient, $"{modelName}/{modelName}.glb")
+                    model = GetSasUrl(containerClient, $"{modelName}/{modelName}.glb"),
+                    tag = "weapon"
                 });
             }
 
