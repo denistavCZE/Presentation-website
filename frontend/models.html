@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Denis Lukosz</title>
+      <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <nav>
+      <a class="logo" href="index.html">denis<span class="logo-white">lukosz</span><span class="logo-extension">.cz</span></a>
+      <ul class="nav-links">
+        <li><a href="#">Scripts</a></li>
+        <li><a href="models.html" class="active">3D Models</a></li>
+        <li><a href="#">Maps</a></li>
+        <li><a href="#">Mods</a></li>
+        <li><a href="https://kozmicefiresportcalendar.azurewebsites.net" class="external">Firesport</a></li>
+      </ul>
+    </nav>
+
+    <div class="page">
+      <div class="page-header">
+        <h1 class="page-title"><span>◈</span> 3D Models</h1>
+        <span class="page-count" id="model-count">// loading...</span>
+      </div>
+
+      <div class="search-bar">
+        <input class="search-input" type="text" placeholder="// search models..." id="search" />
+        <div class="tag-filter">
+          <button class="tag active" onclick="filterTag(this, 'all')">all</button>
+          <button class="tag" onclick="filterTag(this, 'weapon')">weapon</button>
+          <button class="tag" onclick="filterTag(this, 'building')">building</button>
+          <button class="tag" onclick="filterTag(this, 'prop')">prop</button>
+          <button class="tag" onclick="filterTag(this, 'character')">character</button>
+        </div>
+      </div>
+
+      <div class="models-grid" id="grid">
+        <div class="loading-state">
+          <div class="dot-pulse"><span></span><span></span><span></span></div>
+          fetching models...
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const MOCK_MODELS = [
+        { name: "ak74_rifle", desc: "AK-74 assault rifle with rail", format: "GLB", tag: "weapon" },
+        { name: "ural_truck", desc: "Soviet military transport truck", format: "GLB", tag: "vehicle" },
+        { name: "ammo_crate", desc: "Wooden ammunition storage box", format: "GLB", tag: "prop" },
+        { name: "helmet_m88", desc: "M88 ballistic helmet with cover", format: "GLB", tag: "character" },
+        { name: "dragunov_svd", desc: "SVD sniper rifle", format: "GLB", tag: "weapon" },
+        { name: "oil_barrel", desc: "Industrial steel barrel", format: "GLB", tag: "prop" },
+      ];
+
+      let allModels = [];//[...MOCK_MODELS];
+      let activeTag = 'all';
+      let searchVal = '';
+
+      async function loadModels() {
+        try {
+          const res = await fetch('/api/models');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const models = await res.json();
+          allModels = models;
+          renderGrid(models);
+        } catch (err) {
+          document.getElementById('grid').innerHTML = `
+            <div class="loading-state">// error loading models: ${err.message}</div>
+          `;
+        }
+      }
+
+      function renderGrid(models) {
+        const grid = document.getElementById('grid');
+        document.getElementById('model-count').textContent = `${models.length} model${models.length !== 1 ? 's' : ''}`;
+        if (!models.length) {
+          grid.innerHTML = `<div class="loading-state">no models found</div>`;
+          return;
+        }
+        grid.innerHTML = models.map(m => `
+          <div class="model-card">
+            <div class="model-thumb">
+              <div class="thumb-grid"></div>
+              <div class="thumb-icon">◈</div>
+            </div>
+            <div class="model-info">
+              <div class="model-name">${m.name}</div>
+              <div class="model-desc">${m.desc}</div>
+              <div class="model-footer">
+                <span class="model-format">.${m.format.toLowerCase()}</span>
+                <span class="model-dl">download ↓</span>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function applyFilters() {
+        let filtered = allModels;
+        if (activeTag !== 'all') filtered = filtered.filter(m => m.tag === activeTag);
+        if (searchVal) filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
+        renderGrid(filtered);
+      }
+
+      function filterTag(el, tag) {
+        document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        activeTag = tag;
+        applyFilters();
+      }
+
+      document.getElementById('search').addEventListener('input', e => {
+        searchVal = e.target.value.toLowerCase();
+        applyFilters();
+      });
+
+      loadModels();
+    </script>
+  </body>
+</html>
