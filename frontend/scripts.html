@@ -20,65 +20,54 @@
 
     <div class="page">
       <div class="page-header">
-        <h1 class="page-title"><span>◈</span> 3D Models</h1>
-        <span class="page-count" id="model-count">// loading...</span>
+        <h1 class="page-title"><span>◈</span> Scripts</h1>
+        <span class="page-count" id="scripts-count">// loading...</span>
       </div>
 
       <div class="search-bar">
-        <input class="search-input" type="text" placeholder="// search models..." id="search" />
+        <input class="search-input" type="text" placeholder="// search scripts..." id="search" />
         <div class="tag-filter">
           <button class="tag active" onclick="filterTag(this, 'all')">all</button>
-          <button class="tag" onclick="filterTag(this, 'weapon')">weapon</button>
-          <button class="tag" onclick="filterTag(this, 'building')">building</button>
-          <button class="tag" onclick="filterTag(this, 'prop')">prop</button>
-          <button class="tag" onclick="filterTag(this, 'character')">character</button>
+          <button class="tag" onclick="filterTag(this, 'weapon')">MSSQL</button>
+          <button class="tag" onclick="filterTag(this, 'building')">C#</button>
         </div>
       </div>
 
       <div class="models-grid" id="grid">
         <div class="loading-state">
           <div class="dot-pulse"><span></span><span></span><span></span></div>
-          fetching models...
+          fetching scripts...
         </div>
       </div>
     </div>
 
     <script>
-      const MOCK_MODELS = [
-        { name: "ak74_rifle", desc: "AK-74 assault rifle with rail", format: "GLB", tag: "weapon" },
-        { name: "ural_truck", desc: "Soviet military transport truck", format: "GLB", tag: "vehicle" },
-        { name: "ammo_crate", desc: "Wooden ammunition storage box", format: "GLB", tag: "prop" },
-        { name: "helmet_m88", desc: "M88 ballistic helmet with cover", format: "GLB", tag: "character" },
-        { name: "dragunov_svd", desc: "SVD sniper rifle", format: "GLB", tag: "weapon" },
-        { name: "oil_barrel", desc: "Industrial steel barrel", format: "GLB", tag: "prop" },
-      ];
-
-      let allModels = [];//[...MOCK_MODELS];
+      let allScripts = [];
       let activeTag = 'all';
       let searchVal = '';
 
-      async function loadModels() {
+      async function loadScripts() {
         try {
-          const res = await fetch('/api/models');
+          const res = await fetch('/api/scripts');
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const models = await res.json();
-          allModels = models;
-          renderGrid(models);
+          const scripts = await res.json();
+          allScripts = scripts;
+          renderGrid(scripts);
         } catch (err) {
           document.getElementById('grid').innerHTML = `
-            <div class="loading-state">// error loading models: ${err.message}</div>
+            <div class="loading-state">// error loading scripts: ${err.message}</div>
           `;
         }
       }
 
-      function renderGrid(models) {
+      function renderGrid(scripts) {
         const grid = document.getElementById('grid');
-        document.getElementById('model-count').textContent = `${models.length} model${models.length !== 1 ? 's' : ''}`;
-        if (!models.length) {
-          grid.innerHTML = `<div class="loading-state">no models found</div>`;
+        document.getElementById('scripts-count').textContent = `${scripts.length} script${scripts.length !== 1 ? 's' : ''}`;
+        if (!scripts.length) {
+          grid.innerHTML = `<div class="loading-state">no scripts found</div>`;
           return;
         }
-        grid.innerHTML = models.map(m => `
+        grid.innerHTML = scripts.map(m => `
           <div class="model-card">
             <div class="model-thumb">
               <div class="thumb-grid"></div>
@@ -97,7 +86,7 @@
       }
 
       function applyFilters() {
-        let filtered = allModels;
+        let filtered = allScripts;
         if (activeTag !== 'all') filtered = filtered.filter(m => m.tag === activeTag);
         if (searchVal) filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
         renderGrid(filtered);
@@ -115,7 +104,7 @@
         applyFilters();
       });
 
-      loadModels();
+      loadScripts();
     </script>
   </body>
 </html>
