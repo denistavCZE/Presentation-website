@@ -26,10 +26,8 @@
 
       <div class="search-bar">
         <input class="search-input" type="text" placeholder="// search scripts..." id="search" />
-        <div class="tag-filter">
+        <div class="tag-filter" id="tag-filter">
           <button class="tag active" onclick="filterTag(this, 'all')">all</button>
-          <button class="tag" onclick="filterTag(this, 'weapon')">MSSQL</button>
-          <button class="tag" onclick="filterTag(this, 'building')">C#</button>
         </div>
       </div>
 
@@ -42,16 +40,37 @@
     </div>
 
     <script>
+      const MOCK = [
+        { name: "db_cleanup", extension: "sql", description: null, script: "#" },
+        { name: "user_importer", extension: "cs", description: null, script: "#" },
+        { name: "backup_script", extension: "ps1", description: null, script: "#" },
+        { name: "deploy_tool", extension: "py", description: null, script: "#" },
+        { name: "index_rebuild", extension: "sql", description: null, script: "#" },
+      ];
+
+     const SCRIPT_ICON = `<svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="2" y="2" width="28" height="36" rx="3" fill="#0a0a0f" stroke="#888" stroke-width="1.5"/>
+                          <path d="M24 2l8 8H24V2z" fill="#0f0f1a" stroke="#888" stroke-width="1"/>
+                          <line x1="5" y1="16" x2="27" y2="16" stroke="#888" stroke-width="1"/>
+                          <line x1="5" y1="20" x2="27" y2="20" stroke="#888" stroke-width="1"/>
+                          <line x1="5" y1="24" x2="22" y2="24" stroke="#888" stroke-width="1"/>
+                        </svg>`;
+
       let allScripts = [];
       let activeTag = 'all';
       let searchVal = '';
 
       async function loadScripts() {
         try {
+          // DEV Stuff
+          // await new Promise(r => setTimeout(r, 800));
+          // const scripts = MOCK;
+          
           const res = await fetch('/api/GetScripts');
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const scripts = await res.json();
           allScripts = scripts;
+          buildTagFilters(allScripts);
           renderGrid(scripts);
         } catch (err) {
           document.getElementById('grid').innerHTML = `
@@ -60,9 +79,23 @@
         }
       }
 
+      function buildTagFilters(scripts) {
+        const extensions = [...new Set(scripts.map(s => s.extension).filter(Boolean))];
+        const container = document.getElementById('tag-filter');
+        extensions.forEach(ext => {
+          const btn = document.createElement('button');
+          btn.className = 'tag';
+          btn.textContent = `.${ext}`;
+          btn.onclick = () => filterTag(btn, ext);
+          container.appendChild(btn);
+        });
+      }
+
+
+
       function renderGrid(scripts) {
         const grid = document.getElementById('grid');
-        document.getElementById('scripts-count').textContent = `${scripts.length} script${scripts.length !== 1 ? 's' : ''}`;
+        document.getElementById('scripts-count').textContent = `// ${scripts.length} script${scripts.length !== 1 ? 's' : ''}`;
         if (!scripts.length) {
           grid.innerHTML = `<div class="loading-state">no scripts found</div>`;
           return;
@@ -71,14 +104,13 @@
           <div class="model-card">
             <div class="model-thumb">
               <div class="thumb-grid"></div>
-              <div class="thumb-icon">◈</div>
+              <div class="script-icon">${SCRIPT_ICON}</div>
             </div>
             <div class="model-info">
               <div class="model-name">${m.name}</div>
-              <div class="model-desc">${m.desc}</div>
               <div class="model-footer">
-                <span class="model-format">.${m.format.toLowerCase()}</span>
-                <span class="model-dl">download ↓</span>
+                <span class="model-format">.${m.extension ?? '?'}</span>
+                <a href="${m.script}" download class="model-dl">download ↓</a>
               </div>
             </div>
           </div>
@@ -87,7 +119,7 @@
 
       function applyFilters() {
         let filtered = allScripts;
-        if (activeTag !== 'all') filtered = filtered.filter(m => m.tag === activeTag);
+        if (activeTag !== 'all') filtered = filtered.filter(m => m.extension === activeTag);
         if (searchVal) filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
         renderGrid(filtered);
       }
