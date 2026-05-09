@@ -48,7 +48,7 @@
 
       async function loadScripts() {
         try {
-          const res = await fetch('/api/scripts');
+          const res = await fetch('/api/GetScripts');
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const scripts = await res.json();
           allScripts = scripts;
