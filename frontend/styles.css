@@ -266,9 +266,12 @@
     z-index: 1;
   }
   .thumb-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    z-index: 1;
   }
   .model-info { padding: 12px 14px; }
   .model-name {
