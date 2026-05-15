@@ -26,12 +26,8 @@
 
       <div class="search-bar">
         <input class="search-input" type="text" placeholder="// search models..." id="search" />
-        <div class="tag-filter">
+        <div class="tag-filter" id="tag-filter">
           <button class="tag active" onclick="filterTag(this, 'all')">all</button>
-          <button class="tag" onclick="filterTag(this, 'weapon')">weapon</button>
-          <button class="tag" onclick="filterTag(this, 'building')">building</button>
-          <button class="tag" onclick="filterTag(this, 'prop')">prop</button>
-          <button class="tag" onclick="filterTag(this, 'character')">character</button>
         </div>
       </div>
 
@@ -63,6 +59,7 @@
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const models = await res.json();
           allModels = models;
+          buildTagFilters(models);
           renderGrid(models);
         } catch (err) {
           document.getElementById('grid').innerHTML = `
@@ -73,7 +70,7 @@
 
       function renderGrid(models) {
         const grid = document.getElementById('grid');
-        document.getElementById('model-count').textContent = `${models.length} model${models.length !== 1 ? 's' : ''}`;
+        document.getElementById('model-count').textContent = `// ${models.length} model${models.length !== 1 ? 's' : ''}`;
         if (!models.length) {
           grid.innerHTML = `<div class="loading-state">no models found</div>`;
           return;
@@ -81,24 +78,36 @@
         grid.innerHTML = models.map(m => `
           <div class="model-card">
             <div class="model-thumb">
-              <div class="thumb-grid"></div>
-              <div class="thumb-icon">◈</div>
+              <img class="thumb-img" src="${m.thumbnail}"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+              <div class="thumb-grid" style="display:none; align-items:center; justify-content:center; height:100%;">
+                <div class="thumb-icon">◈</div>
+              </div>
             </div>
             <div class="model-info">
               <div class="model-name">${m.name}</div>
-              <div class="model-desc">${m.desc}</div>
               <div class="model-footer">
-                <span class="model-format">.${m.format.toLowerCase()}</span>
-                <span class="model-dl">download ↓</span>
+                <span class="model-format">.${m.extension ?? '?'}</span>
+                <a href="${m.model}" download class="model-dl">download ↓</a>
               </div>
             </div>
           </div>
         `).join('');
       }
-
+      function buildTagFilters(models) {
+        const categories = [...new Set(models.map(m => m.category).filter(Boolean))];
+        const container = document.getElementById('tag-filter');
+        categories.forEach(cat => {
+          const btn = document.createElement('button');
+          btn.className = 'tag';
+          btn.textContent = cat;
+          btn.onclick = () => filterTag(btn, cat);
+          container.appendChild(btn);
+        });
+      }
       function applyFilters() {
         let filtered = allModels;
-        if (activeTag !== 'all') filtered = filtered.filter(m => m.tag === activeTag);
+        if (activeTag !== 'all') filtered = filtered.filter(m => m.category === activeTag);
         if (searchVal) filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
         renderGrid(filtered);
       }
