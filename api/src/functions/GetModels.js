@@ -8,7 +8,7 @@ app.http('GetModels', {
         try {
             const accountName = process.env.STORAGE_ACCOUNT_NAME;
             const accountKey = process.env.STORAGE_ACCOUNT_KEY;
-            const containerName = 'models';
+            const containerName = '3d-models';
 
             const credential = new StorageSharedKeyCredential(accountName, accountKey);
             const client = new BlobServiceClient(`https://${accountName}.blob.core.windows.net`, credential);
