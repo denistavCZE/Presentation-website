@@ -21,11 +21,11 @@
     <div class="page">
       <div class="page-header">
         <h1 class="page-title"><span>◈</span> Scripts</h1>
-        <span class="page-count" id="scripts-count">// loading...</span>
+        <span class="page-count" id="scripts-count">loading...</span>
       </div>
 
       <div class="search-bar">
-        <input class="search-input" type="text" placeholder="// search scripts..." id="search" />
+        <input class="search-input" type="text" placeholder="search scripts..." id="search" />
         <div class="tag-filter" id="tag-filter">
           <button class="tag active" onclick="filterTag(this, 'all')">all</button>
         </div>
@@ -74,7 +74,7 @@
           renderGrid(scripts);
         } catch (err) {
           document.getElementById('grid').innerHTML = `
-            <div class="loading-state">// error loading scripts: ${err.message}</div>
+            <div class="loading-state">error loading scripts: ${err.message}</div>
           `;
         }
       }
