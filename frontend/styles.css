@@ -255,6 +255,9 @@
       linear-gradient(rgba(0,255,153,0.04) 1px, transparent 1px),
       linear-gradient(90deg, rgba(0,255,153,0.04) 1px, transparent 1px);
     background-size: 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .thumb-icon {
     font-size: 36px;
