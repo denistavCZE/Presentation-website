@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denis Lukosz</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <nav>
+      <a class="logo" href="index.html">denis<span class="logo-white">lukosz</span><span class="logo-extension">.cz</span></a>
+      <ul class="nav-links">
+        <li><a href="scripts.html">Scripts</a></li>
+        <li><a href="models.html">3D Models</a></li>
+        <li><a href="maps.html" class="active">Maps</a></li>
+        <li><a href="#">Mods</a></li>
+        <li><a href="https://kozmicefiresportcalendar.azurewebsites.net" class="external">Firesport</a></li>
+      </ul>
+    </nav>
+
+    <div class="page">
+      <div class="page-header">
+        <h1 class="page-title"><span>⊞</span> Maps</h1>
+        <span class="page-count" id="map-count">loading...</span>
+      </div>
+
+      <div class="search-bar">
+        <input class="search-input" type="text" placeholder="search maps..." id="search" />
+        <div class="tag-filter" id="tag-filter">
+          <button class="tag active" onclick="filterTag(this, 'all')">all</button>
+        </div>
+      </div>
+
+      <div class="models-grid" id="grid">
+        <div class="loading-state">
+          <div class="dot-pulse"><span></span><span></span><span></span></div>
+          fetching maps...
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let allMaps = [];
+      let activeTag = 'all';
+      let searchVal = '';
+
+      async function loadMaps() {
+        try {
+          const res = await fetch('/api/GetMaps');
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const maps = await res.json();
+          allMaps = maps;
+          buildTagFilters(maps);
+          renderGrid(maps);
+        } catch (err) {
+          document.getElementById('grid').innerHTML = `
+            <div class="loading-state">error loading maps: ${err.message}</div>
+          `;
+        }
+      }
+
+      function buildTagFilters(maps) {
+        const games = [...new Set(maps.map(m => m.game).filter(Boolean))];
+        const container = document.getElementById('tag-filter');
+        games.forEach(game => {
+          const btn = document.createElement('button');
+          btn.className = 'tag';
+          btn.textContent = game;
+          btn.onclick = () => filterTag(btn, game);
+          container.appendChild(btn);
+        });
+      }
+
+      function renderGrid(maps) {
+        const grid = document.getElementById('grid');
+        document.getElementById('map-count').textContent = `${maps.length} map${maps.length !== 1 ? 's' : ''}`;
+        if (!maps.length) {
+          grid.innerHTML = `<div class="loading-state">no maps found</div>`;
+          return;
+        }
+        grid.innerHTML = maps.map(m => `
+          <div class="model-card">
+            <div class="model-thumb">
+              ${m.thumbnail ? `<img class="thumb-img" src="${m.thumbnail}"/>` : ''}
+              <div class="thumb-grid">
+                <div class="thumb-icon">⊞</div>
+              </div>
+            </div>
+            <div class="model-info">
+              <div class="model-name">${m.name}</div>
+              <div class="model-footer">
+                <span class="model-format">${m.game}</span>
+                <a href="${m.download ?? '#'}" ${m.download ? 'download' : ''} class="model-dl" style="${m.download ? '' : 'opacity:0.3; pointer-events:none;'}">download ↓</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function applyFilters() {
+        let filtered = allMaps;
+        if (activeTag !== 'all') filtered = filtered.filter(m => m.game === activeTag);
+        if (searchVal) filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
+        renderGrid(filtered);
+      }
+
+      function filterTag(el, tag) {
+        document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        activeTag = tag;
+        applyFilters();
+      }
+
+      document.getElementById('search').addEventListener('input', e => {
+        searchVal = e.target.value.toLowerCase();
+        applyFilters();
+      });
+
+      loadMaps();
+    </script>
+  </body>
+</html>
