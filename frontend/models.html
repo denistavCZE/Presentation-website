@@ -21,11 +21,11 @@
     <div class="page">
       <div class="page-header">
         <h1 class="page-title"><span>◈</span> 3D Models</h1>
-        <span class="page-count" id="model-count">// loading...</span>
+        <span class="page-count" id="model-count">loading...</span>
       </div>
 
       <div class="search-bar">
-        <input class="search-input" type="text" placeholder="// search models..." id="search" />
+        <input class="search-input" type="text" placeholder="search models..." id="search" />
         <div class="tag-filter" id="tag-filter">
           <button class="tag active" onclick="filterTag(this, 'all')">all</button>
         </div>
@@ -63,14 +63,14 @@
           renderGrid(models);
         } catch (err) {
           document.getElementById('grid').innerHTML = `
-            <div class="loading-state">// error loading models: ${err.message}</div>
+            <div class="loading-state">error loading models: ${err.message}</div>
           `;
         }
       }
 
       function renderGrid(models) {
         const grid = document.getElementById('grid');
-        document.getElementById('model-count').textContent = `// ${models.length} model${models.length !== 1 ? 's' : ''}`;
+        document.getElementById('model-count').textContent = `${models.length} model${models.length !== 1 ? 's' : ''}`;
         if (!models.length) {
           grid.innerHTML = `<div class="loading-state">no models found</div>`;
           return;
@@ -78,9 +78,11 @@
         grid.innerHTML = models.map(m => `
           <div class="model-card">
             <div class="model-thumb">
-              <img class="thumb-img" src="${m.thumbnail}"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
-              <div class="thumb-grid" style="display:none; align-items:center; justify-content:center; height:100%;">
+              ${m.thumbnail 
+                ? `<img class="thumb-img" src="${m.thumbnail}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>`
+                : ''
+              }
+              <div class="thumb-grid" style="${m.thumbnail ? 'display:none;' : ''} align-items:center; justify-content:center; height:100%;">
                 <div class="thumb-icon">◈</div>
               </div>
             </div>
@@ -88,7 +90,7 @@
               <div class="model-name">${m.name}</div>
               <div class="model-footer">
                 <span class="model-format">.${m.extension ?? '?'}</span>
-                <a href="${m.model}" download class="model-dl">download ↓</a>
+                <a href="${m.model ?? '#'}" ${m.model ? 'download' : ''} class="model-dl" style="${m.model ? '' : 'opacity:0.3; pointer-events:none;'}">download ↓</a>
               </div>
             </div>
           </div>
