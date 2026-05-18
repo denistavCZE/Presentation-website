@@ -55,7 +55,7 @@
 
       async function loadModels() {
         try {
-          const res = await fetch('/api/GetItems?type=models');
+          const res = await fetch('/api/GetItems?type=3d-models');
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const models = await res.json();
           allModels = models;

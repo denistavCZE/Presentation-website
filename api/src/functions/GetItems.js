@@ -1,7 +1,7 @@
 const { app } = require('@azure/functions');
 const { BlobServiceClient, generateBlobSASQueryParameters, BlobSASPermissions, StorageSharedKeyCredential } = require('@azure/storage-blob');
 
-const VALID_CONTAINERS = ['scripts', 'models', 'maps', 'mods', 'games'];
+const VALID_CONTAINERS = ['scripts', '3d-models', 'maps', 'mods', 'games'];
 const THUMBNAIL_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
 app.http('GetItems', {
