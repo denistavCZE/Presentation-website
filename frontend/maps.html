@@ -46,7 +46,7 @@
 
       async function loadMaps() {
         try {
-          const res = await fetch('/api/GetMaps');
+          const res = await fetch('/api/GetItems?type=maps');
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const maps = await res.json();
           allMaps = maps;
