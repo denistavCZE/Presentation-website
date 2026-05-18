@@ -44,10 +44,12 @@ app.http('GetItems', {
                 for await (const itemFolder of containerClient.listBlobsByHierarchy('/', { prefix: category.name })) {
                     if (itemFolder.kind !== 'prefix') continue;
                     const itemPath = itemFolder.name;
-                    const itemName = itemPath.replace(category.name, '').replace('/', '');
+                    const itemName = itemPath.replace(category.name, '').replace('/', '').replace(/__[^/]+$/, '');
 
                     let mainZip = null;
+                    let mainExtension = null;
                     let sourceZip = null;
+                    let sourceExtension = null;
                     let thumbnail = null;
 
                     for await (const blob of containerClient.listBlobsFlat({ prefix: itemPath })) {
@@ -57,10 +59,18 @@ app.http('GetItems', {
                         if (THUMBNAIL_EXTENSIONS.includes(ext)) {
                             thumbnail = blob.name;
                         } else if (ext === 'zip') {
+                            // vytáhne extension schovanou za "__"
+                            const hiddenExtensionMatch = fileName.match(/__(.+)\.zip$/i);
+                            const hiddenExtension = hiddenExtensionMatch
+                                ? hiddenExtensionMatch[1]
+                                : null;
+
                             if (fileName.includes('_source')) {
                                 sourceZip = blob.name;
+                                sourceExtension = hiddenExtension;
                             } else {
                                 mainZip = blob.name;
+                                sourceExtension = hiddenExtension;
                             }
                         }
                     }
@@ -70,7 +80,9 @@ app.http('GetItems', {
                         category: categoryName,
                         thumbnail: thumbnail ? makeSas(thumbnail) : null,
                         download: mainZip ? makeSas(mainZip) : null,
+                        downloadExtension: mainExtension,
                         source: sourceZip ? makeSas(sourceZip) : null,
+                        sourceExtension: sourceExtension,
                     });
                 }
             }
