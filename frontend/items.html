@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Denis Lukosz</title>
+      <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <nav>
+      <a class="logo" href="index.html">denis<span class="logo-white">lukosz</span><span class="logo-extension">.cz</span></a>
+      <ul class="nav-links">
+        <li><a href="items.html?type=scripts">Scripts</a></li>
+        <li><a href="items.html?type=3d-models">3D Models</a></li>
+        <li><a href="items.html?type=maps">Maps</a></li>
+        <li><a href="items.html?type=mods">Mods</a></li>
+        <li><a href="items.html?type=games">Games</a></li>
+        <li><a href="https://kozmicefiresportcalendar.azurewebsites.net" class="external">Firesport</a></li>
+      </ul>
+    </nav>
+
+    <div class="page">
+      <div class="page-header">
+        <h1 class="page-title" id="page-title"></h1>
+        <span class="page-count" id="item-count">loading...</span>
+      </div>
+      <div class="search-bar">
+        <input class="search-input" type="text" id="search" />
+        <div class="tag-filter" id="tag-filter">
+          <button class="tag active" onclick="filterTag(this, 'all')">all</button>
+        </div>
+      </div>
+      <div class="models-grid" id="grid">
+        <div class="loading-state">
+          <div class="dot-pulse"><span></span><span></span><span></span></div>
+          <span id="loading-text">fetching...</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const SCRIPT_ICON = `<svg width="40" height="48" viewBox="0 0 40 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="28" height="36" rx="3" fill="#0a0a0f" stroke="#888" stroke-width="1.5"/>
+        <path d="M24 2l8 8H24V2z" fill="#0f0f1a" stroke="#888" stroke-width="1"/>
+        <line x1="5" y1="16" x2="27" y2="16" stroke="#888" stroke-width="1"/>
+        <line x1="5" y1="20" x2="27" y2="20" stroke="#888" stroke-width="1"/>
+        <line x1="5" y1="24" x2="22" y2="24" stroke="#888" stroke-width="1"/>
+      </svg>`;
+
+      const TYPE_CONFIG = {
+        'scripts':   { title: 'Scripts',   icon: '{ }', useScriptIcon: true,  filterKey: 'downloadExtension', filterPrefix: '.' },
+        '3d-models': { title: '3D Models', icon: '◈',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
+        'maps':      { title: 'Maps',      icon: '⊞',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
+        'mods':      { title: 'Mods',      icon: '⚙',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
+        'games':     { title: 'Games',     icon: '▶',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
+      };
+
+      const TYPE = new URLSearchParams(window.location.search).get('type') ?? 'scripts';
+      const config = TYPE_CONFIG[TYPE] ?? TYPE_CONFIG['scripts'];
+
+      // Nastav titulek a placeholder texty
+      document.getElementById('page-title').innerHTML = `<span>${config.icon}</span> ${config.title}`;
+      document.getElementById('search').placeholder = `search ${config.title.toLowerCase()}...`;
+      document.getElementById('loading-text').textContent = `fetching ${config.title.toLowerCase()}...`;
+
+      // Nastav active nav link
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        if (a.href.includes(TYPE)) a.classList.add('active');
+      });
+
+      let allItems = [];
+      let activeTag = 'all';
+      let searchVal = '';
+
+      async function loadItems() {
+        try {
+          const res = await fetch(`/api/GetItems?type=${TYPE}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const items = await res.json();
+          allItems = items;
+          buildTagFilters(items);
+          renderGrid(items);
+        } catch (err) {
+          document.getElementById('grid').innerHTML = `
+            <div class="loading-state">error loading ${config.title.toLowerCase()}: ${err.message}</div>
+          `;
+        }
+      }
+
+      function buildTagFilters(items) {
+        const values = [...new Set(items.map(i => i[config.filterKey]).filter(Boolean))];
+        const container = document.getElementById('tag-filter');
+        values.forEach(val => {
+          const btn = document.createElement('button');
+          btn.className = 'tag';
+          btn.textContent = `${config.filterPrefix}${val}`;
+          btn.onclick = () => filterTag(btn, val);
+          container.appendChild(btn);
+        });
+      }
+
+      function renderGrid(items) {
+        const grid = document.getElementById('grid');
+        document.getElementById('item-count').textContent = `${items.length} ${config.title.toLowerCase()}`;
+        if (!items.length) {
+          grid.innerHTML = `<div class="loading-state">no ${config.title.toLowerCase()} found</div>`;
+          return;
+        }
+        grid.innerHTML = items.map(m => `
+          <div class="model-card">
+            <div class="model-thumb">
+              ${m.thumbnail ? `<img class="thumb-img" src="${m.thumbnail}"/>` : ''}
+              <div class="thumb-grid">
+                ${config.useScriptIcon
+                  ? `<div class="script-icon">${SCRIPT_ICON}</div>`
+                  : `<div class="thumb-icon">${config.icon}</div>`
+                }
+              </div>
+            </div>
+            <div class="model-info">
+              <div class="model-name">${m.name}</div>
+              <div class="model-footer">
+                <span class="model-format">${config.filterPrefix}${m[config.filterKey] ?? '?'}</span>
+                <a href="${m.download ?? '#'}" ${m.download ? 'download' : ''} class="model-dl" style="${m.download ? '' : 'opacity:0.3; pointer-events:none;'}">download ↓</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function applyFilters() {
+        let filtered = allItems;
+        if (activeTag !== 'all') filtered = filtered.filter(m => m[config.filterKey] === activeTag);
+        if (searchVal) filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
+        renderGrid(filtered);
+      }
+
+      function filterTag(el, tag) {
+        document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        activeTag = tag;
+        applyFilters();
+      }
+
+      document.getElementById('search').addEventListener('input', e => {
+        searchVal = e.target.value.toLowerCase();
+        applyFilters();
+      });
+
+      loadItems();
+    </script>
+  </body>
+</html>
