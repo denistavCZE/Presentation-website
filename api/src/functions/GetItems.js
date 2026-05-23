@@ -44,7 +44,8 @@ app.http('GetItems', {
                 for await (const itemFolder of containerClient.listBlobsByHierarchy('/', { prefix: category.name })) {
                     if (itemFolder.kind !== 'prefix') continue;
                     const itemPath = itemFolder.name;
-                    const itemName = itemPath.replace(category.name, '').replace('/', '').replace(/__[^/]+$/, '');
+                    oopravit - tady aktualne se bere název složky - je potřeba toho zipu níže z blobname
+                    const itemName = 
 
                     let mainZip = null;
                     let mainExtension = null;
@@ -76,7 +77,7 @@ app.http('GetItems', {
                     }
 
                     items.push({
-                        name: itemName,
+                        name: fileName.replace(category.name, '').replace('/', '').replace(/__[^/]+$/, ''),
                         category: categoryName,
                         thumbnail: thumbnail ? makeSas(thumbnail) : null,
                         download: mainZip ? makeSas(mainZip) : null,
