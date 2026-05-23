@@ -44,8 +44,7 @@ app.http('GetItems', {
                 for await (const itemFolder of containerClient.listBlobsByHierarchy('/', { prefix: category.name })) {
                     if (itemFolder.kind !== 'prefix') continue;
                     const itemPath = itemFolder.name;
-                    oopravit - tady aktualne se bere název složky - je potřeba toho zipu níže z blobname
-                    const itemName = 
+                    // oopravit - tady aktualne se bere název složky - je potřeba toho zipu níže z blobname
 
                     let mainZip = null;
                     let mainExtension = null;
