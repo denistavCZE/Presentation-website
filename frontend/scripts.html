@@ -110,7 +110,7 @@
               <div class="model-name">${m.name}</div>
               <div class="model-footer">
                 <span class="model-format">.${m.downloadExtension ?? '?'}</span>
-                <a href="${m.download ?? '#'}" ${m.download ? 'download' : ''} ...>
+                <a href="${m.download ?? '#'}" ${m.download ? 'download' : ''} class="model-dl" style="${m.download ? '' : 'opacity:0.3; pointer-events:none;'}">download ↓</a>
               </div>
             </div>
           </div>

@@ -76,7 +76,7 @@ app.http('GetItems', {
                     }
 
                     items.push({
-                        name: fileName.replace(category.name, '').replace('/', '').replace(/__[^/]+$/, ''),
+                        name: itemName,
                         category: categoryName,
                         thumbnail: thumbnail ? makeSas(thumbnail) : null,
                         download: mainZip ? makeSas(mainZip) : null,
