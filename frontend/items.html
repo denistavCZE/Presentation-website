@@ -14,7 +14,7 @@
         <li><a href="items.html?type=3d-models">3D Models</a></li>
         <li><a href="items.html?type=maps">Maps</a></li>
         <li><a href="items.html?type=mods">Mods</a></li>
-        <li><a href="items.html?type=games">Games</a></li>
+        <li><a href="items.html?type=programs">Programs</a></li>
         <li><a href="https://kozmicefiresportcalendar.azurewebsites.net" class="external">Firesport</a></li>
       </ul>
     </nav>
@@ -49,21 +49,21 @@
 
       const TYPE_CONFIG = {
         'scripts':   { title: 'Scripts',   icon: '{ }', useScriptIcon: true,  filterKey: 'downloadExtension', filterPrefix: '.' },
-        '3d-models': { title: '3D Models', icon: '◈',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
+        '3d-models': { title: 'Models',    icon: '◈',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
         'maps':      { title: 'Maps',      icon: '⊞',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
         'mods':      { title: 'Mods',      icon: '⚙',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
-        'games':     { title: 'Games',     icon: '▶',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
+        'programs':  { title: 'Programs',  icon: '▶',   useScriptIcon: false, filterKey: 'category',          filterPrefix: '' },
       };
 
       const TYPE = new URLSearchParams(window.location.search).get('type') ?? 'scripts';
       const config = TYPE_CONFIG[TYPE] ?? TYPE_CONFIG['scripts'];
 
-      // Nastav titulek a placeholder texty
+      // Titulek a placeholder texty
       document.getElementById('page-title').innerHTML = `<span>${config.icon}</span> ${config.title}`;
       document.getElementById('search').placeholder = `search ${config.title.toLowerCase()}...`;
       document.getElementById('loading-text').textContent = `fetching ${config.title.toLowerCase()}...`;
 
-      // Nastav active nav link
+      // Active nav link
       document.querySelectorAll('.nav-links a').forEach(a => {
         if (a.href.includes(TYPE)) a.classList.add('active');
       });
