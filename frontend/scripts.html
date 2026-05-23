@@ -80,7 +80,7 @@
       }
 
       function buildTagFilters(scripts) {
-        const extensions = [...new Set(scripts.map(s => s.extension).filter(Boolean))];
+        const extensions = [...new Set(scripts.map(s => s.downloadExtension).filter(Boolean))];
         const container = document.getElementById('tag-filter');
         extensions.forEach(ext => {
           const btn = document.createElement('button');
@@ -110,7 +110,7 @@
               <div class="model-name">${m.name}</div>
               <div class="model-footer">
                 <span class="model-format">.${m.downloadExtension ?? '?'}</span>
-                <a href="${m.script}" download class="model-dl">download ↓</a>
+                <a href="${m.download ?? '#'}" ${m.download ? 'download' : ''} ...>
               </div>
             </div>
           </div>
@@ -119,7 +119,7 @@
 
       function applyFilters() {
         let filtered = allScripts;
-        if (activeTag !== 'all') filtered = filtered.filter(m => m.extension === activeTag);
+        if (activeTag !== 'all') filtered = filtered.filter(m => m.downloadExtension === activeTag);
         if (searchVal) filtered = filtered.filter(m => m.name.toLowerCase().includes(searchVal));
         renderGrid(filtered);
       }
