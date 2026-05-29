@@ -118,11 +118,20 @@
               </div>
             </div>
             <div class="model-info">
-              <div class="model-name">${m.name}</div>
-              <div class="model-footer">
-                <span class="model-format">${config.filterPrefix}${m[config.filterKey] ?? '?'}</span>
-                <a href="${m.download ?? '#'}" ${m.download ? 'download' : ''} class="model-dl" style="${m.download ? '' : 'opacity:0.3; pointer-events:none;'}">download ↓</a>
-              </div>
+                <div class="model-name">${m.name}</div>
+                <div class="model-footer">
+                    <span class="model-format">${config.filterPrefix}${m[config.filterKey] ?? '?'}</span>
+                    <div class="download-buttons">
+                        ${m.downloadPath
+                            ? `<button onclick="download('${TYPE}', '${m.downloadPath}')" class="model-dl">download ↓</button>`
+                            : `<span class="model-dl" style="opacity:0.3">unavailable</span>`
+                        }
+                        ${m.sourcePath
+                            ? `<button onclick="download('${TYPE}', '${m.sourcePath}')" class="model-dl model-dl-source">source ↓</button>`
+                            : ''
+                        }
+                    </div>
+                </div>
             </div>
           </div>
         `).join('');
@@ -146,6 +155,17 @@
         searchVal = e.target.value.toLowerCase();
         applyFilters();
       });
+
+      async function download(type, path) {
+        try {
+            const res = await fetch(`/api/GetDownloadUrl?type=${type}&path=${encodeURIComponent(path)}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const { url } = await res.json();
+            window.location.href = url;
+        } catch (err) {
+            alert(`Download failed: ${err.message}`);
+        }
+      }
 
       loadItems();
     </script>

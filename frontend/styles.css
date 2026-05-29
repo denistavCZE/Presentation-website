@@ -315,6 +315,18 @@
     font-size: 13px;
     letter-spacing: 0.06em;
   }
+  .download-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .model-dl-source {
+      color: #555;
+      border: 1px solid #1a1a2e;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 10px;
+  }
   .dot-pulse { display: flex; gap: 4px; }
   .dot-pulse span {
     width: 4px; height: 4px; border-radius: 50%; background: #00ff99;

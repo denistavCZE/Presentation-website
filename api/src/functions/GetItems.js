@@ -23,8 +23,8 @@ app.http('GetItems', {
             const containerClient = client.getContainerClient(type);
 
             const expiry = new Date();
-            expiry.setHours(expiry.getHours() + 1);
-
+            expiry.setMinutes(expiry.getMinutes() + 1); 
+            
             const makeSas = (blobName) => {
                 const sasParams = generateBlobSASQueryParameters({
                     containerName: type,
@@ -79,9 +79,9 @@ app.http('GetItems', {
                         name: itemName,
                         category: categoryName,
                         thumbnail: thumbnail ? makeSas(thumbnail) : null,
-                        download: mainZip ? makeSas(mainZip) : null,
+                        downloadPath: mainZip ?? null,
                         downloadExtension: mainExtension,
-                        source: sourceZip ? makeSas(sourceZip) : null,
+                        sourcePath: sourceZip ?? null,
                         sourceExtension: sourceExtension,
                     });
                 }
