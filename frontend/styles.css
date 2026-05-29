@@ -303,6 +303,19 @@
     font-size: 11px;
     color: #888;
     letter-spacing: 0.04em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: monospace;
+  }
+  .model-dl:hover { color: #00ff99; }
+  .model-dl-source {
+      color: #555;
+      border: 1px solid #1a1a2e;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 10px;
   }
   .loading-state {
     grid-column: 1/-1;
@@ -319,13 +332,6 @@
     display: flex;
     gap: 8px;
     align-items: center;
-  }
-  .model-dl-source {
-      color: #555;
-      border: 1px solid #1a1a2e;
-      border-radius: 3px;
-      padding: 2px 6px;
-      font-size: 10px;
   }
   .dot-pulse { display: flex; gap: 4px; }
   .dot-pulse span {
