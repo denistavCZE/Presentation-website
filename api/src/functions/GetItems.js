@@ -9,12 +9,18 @@ app.http('GetItems', {
     authLevel: 'anonymous',
     handler: async (request, context) => {
         try {
-            const type = request.query.get('type');
 
+            const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+            const allowed = await checkRateLimit(ip, 'browse');
+            if (!allowed) {
+                return { status: 429, body: 'Too many requests. Try again later.' };
+            }
+
+            const type = request.query.get('type');
             if (!type || !VALID_CONTAINERS.includes(type)) {
                 return { status: 400, body: `Invalid type. Must be one of: ${VALID_CONTAINERS.join(', ')}` };
             }
-
+            
             const accountName = process.env.STORAGE_ACCOUNT_NAME;
             const accountKey = process.env.STORAGE_ACCOUNT_KEY;
 
@@ -24,7 +30,7 @@ app.http('GetItems', {
 
             const expiry = new Date();
             expiry.setMinutes(expiry.getMinutes() + 1); 
-            
+
             const makeSas = (blobName) => {
                 const sasParams = generateBlobSASQueryParameters({
                     containerName: type,

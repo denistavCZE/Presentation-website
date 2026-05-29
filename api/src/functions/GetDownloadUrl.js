@@ -8,6 +8,13 @@ app.http('GetDownloadUrl', {
     authLevel: 'anonymous',
     handler: async (request, context) => {
         try {
+
+            const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'unknown';
+            const allowed = await checkRateLimit(ip, 'download');
+            if (!allowed) {
+                return { status: 429, body: 'Too many requests. Try again later.' };
+            }
+
             const type = request.query.get('type');
             const blobPath = request.query.get('path');
 
@@ -22,7 +29,7 @@ app.http('GetDownloadUrl', {
             if (blobPath.includes('..') || blobPath.startsWith('/')) {
                 return { status: 400, body: 'Invalid path.' };
             }
-
+            
             const accountName = process.env.STORAGE_ACCOUNT_NAME;
             const accountKey = process.env.STORAGE_ACCOUNT_KEY;
             const credential = new StorageSharedKeyCredential(accountName, accountKey);
