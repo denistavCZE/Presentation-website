@@ -1,3 +1,4 @@
+const { checkRateLimit } = require('../rateLimit');
 const { app } = require('@azure/functions');
 const { BlobServiceClient, generateBlobSASQueryParameters, BlobSASPermissions, StorageSharedKeyCredential } = require('@azure/storage-blob');
 
