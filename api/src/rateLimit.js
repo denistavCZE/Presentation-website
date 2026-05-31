@@ -23,9 +23,12 @@ function getCurrentWindow() {
     return `${now.getUTCFullYear()}${String(now.getUTCMonth()+1).padStart(2,'0')}${String(now.getUTCDate()).padStart(2,'0')}${String(now.getUTCHours()).padStart(2,'0')}`;
 }
 
-async function checkRateLimit(ip, limitType = 'browse') {
+async function checkRateLimit(rawip, limitType = 'browse') {
     const client = getTableClient();
     const limit = LIMITS[limitType] ?? LIMITS['browse'];
+    const ip = rawIp.match(/^\d+\.\d+\.\d+\.\d+:\d+$/) 
+    ? rawIp.split(':')[0] 
+    : rawIp;
     const partitionKey = `${limitType}_${ip.replace(/[^a-zA-Z0-9]/g, '_')}`;
     const rowKey = getCurrentWindow();
 
