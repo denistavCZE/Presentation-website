@@ -1,9 +1,27 @@
+const { TableClient, AzureNamedKeyCredential } = require('@azure/data-tables');
+
 const TABLE_NAME = 'ratelimits';
 
 const LIMITS = {
     'browse': { max: 100 },
     'download': { max: 20 },
 };
+
+function getTableClient() {
+    const accountName = process.env.STORAGE_ACCOUNT_NAME;
+    const accountKey = process.env.STORAGE_ACCOUNT_KEY;
+    const credential = new AzureNamedKeyCredential(accountName, accountKey);
+    return new TableClient(
+        `https://${accountName}.table.core.windows.net`,
+        TABLE_NAME,
+        credential
+    );
+}
+
+function getCurrentWindow() {
+    const now = new Date();
+    return `${now.getUTCFullYear()}${String(now.getUTCMonth()+1).padStart(2,'0')}${String(now.getUTCDate()).padStart(2,'0')}${String(now.getUTCHours()).padStart(2,'0')}`;
+}
 
 async function checkRateLimit(ip, limitType = 'browse') {
     const client = getTableClient();
@@ -27,6 +45,7 @@ async function checkRateLimit(ip, limitType = 'browse') {
         return true;
 
     } catch (err) {
+        console.log(`RateLimit error: ${err.statusCode} - ${err.message}`);
         if (err.statusCode === 404) {
             await client.createEntity({
                 partitionKey,
