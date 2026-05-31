@@ -100,7 +100,7 @@ app.http('GetItems', {
                 body: JSON.stringify(items)
             };
         } catch (err) {
-            context.log.error('Error:', err.message);
+            console.error('Error:', err.message);
             return { status: 500, body: `Error: ${err.message}` };
         }
     }

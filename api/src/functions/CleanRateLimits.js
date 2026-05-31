@@ -23,7 +23,7 @@ app.timer('CleanRateLimits', {
             }
         }
 
-        context.log(`Cleaned ${deleted} old rate limit entries`);
+        console.error('Error:', `Cleaned ${deleted} old rate limit entries`);
     }
 });
 
