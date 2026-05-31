@@ -311,7 +311,6 @@
   }
   .model-dl:hover { color: #00ff99; }
   .model-dl-source {
-      color: #555;
       border: 1px solid #1a1a2e;
       border-radius: 3px;
       padding: 2px 6px;

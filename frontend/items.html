@@ -122,14 +122,15 @@
                 <div class="model-footer">
                     <span class="model-format">${config.filterPrefix}${m[config.filterKey] ?? '?'}</span>
                     <div class="download-buttons">
-                        ${m.downloadPath
-                            ? `<button onclick="download('${TYPE}', '${m.downloadPath}')" class="model-dl">download ↓</button>`
-                            : `<span class="model-dl" style="opacity:0.3">unavailable</span>`
-                        }
                         ${m.sourcePath
                             ? `<button onclick="download('${TYPE}', '${m.sourcePath}')" class="model-dl model-dl-source">source ↓</button>`
                             : ''
                         }
+                        ${m.downloadPath
+                            ? `<button onclick="download('${TYPE}', '${m.downloadPath}')" class="model-dl">download ↓</button>`
+                            : `<span class="model-dl" style="opacity:0.3">unavailable</span>`
+                        }
+                        
                     </div>
                 </div>
             </div>
